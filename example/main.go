@@ -12,6 +12,6 @@ import (
 func main() {
 	containers.GET("/products/:name", &pages.ProductPage{}, parts.MainLayout)
 
-	http.Handle("/", &containers.MainHandler{})
+	http.Handle("/", &containers.MainHandler{&pages.HomePage{}})
 	log.Fatal(http.ListenAndServe(":9000", nil))
 }
