@@ -1,14 +1,15 @@
 package parts
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/theplant/containers/example/events"
 	"github.com/theplant/containers/example/models"
 )
 
-func Product(r *http.Request, ctx context.Context) (html string, err error) {
+func Product(r *http.Request) (html string, err error) {
+	ctx := r.Context()
+
 	p := &models.Product{Name: "Felix"}
 
 	var addToCartEvent *events.AddToCartEvent

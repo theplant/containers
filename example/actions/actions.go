@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -9,7 +8,8 @@ import (
 	"github.com/theplant/containers/example/events"
 )
 
-func AddToCart(r *http.Request, ctx context.Context) (redirectUrl string, evts []containers.Event, err error) {
+func AddToCart(r *http.Request) (redirectUrl string, evts []containers.Event, err error) {
+	ctx := r.Context()
 	var addToCartEvent *events.AddToCartEvent
 	if e := ctx.Value("events.AddToCartEvent"); e != nil {
 		addToCartEvent = e.(*events.AddToCartEvent)
