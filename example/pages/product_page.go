@@ -12,6 +12,6 @@ type ProductPage struct {
 }
 
 func (pp *ProductPage) Containers(r *http.Request, ctx context.Context) (cs []containers.Container, err error) {
-	cs = []containers.Container{parts.Header, parts.Footer}
+	cs = []containers.Container{parts.Header, parts.Product, parts.Footer}
 	return
 }

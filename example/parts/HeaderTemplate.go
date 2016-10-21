@@ -9,9 +9,9 @@ import (
 
 func HeaderTemplate(p *models.Product) string {
 	var _buffer bytes.Buffer
-	_buffer.WriteString("\n<html>\n  <body>\n    <h1>Hello ")
+	_buffer.WriteString("\n<header>\n  <h1>Hello ")
 	_buffer.WriteString(gorazor.HTMLEscape(strings.TrimSpace(p.Name)))
-	_buffer.WriteString("</h1>\n\n  </body>\n</html>")
+	_buffer.WriteString("</h1>\n</header>")
 
 	return _buffer.String()
 }

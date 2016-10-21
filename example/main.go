@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	containers.GET("/products/:name", &pages.ProductPage{}, parts.MainLayout)
+	containers.GET("/products/:code", &pages.ProductPage{}, parts.MainLayout)
+	containers.GET("/", &pages.HomePage{}, parts.MainLayout)
 
 	http.Handle("/", &containers.MainHandler{})
 	log.Fatal(http.ListenAndServe(":9000", nil))
