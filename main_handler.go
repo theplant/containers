@@ -7,9 +7,9 @@ type MainHandler struct {
 }
 
 func (mh *MainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	cs, _ := mh.Page.Containers(req, req.Context())
+	cs, _ := mh.Page.Containers(req)
 	for _, c := range cs {
-		r, _ := c(req, req.Context())
+		r, _ := c(req)
 		res.Write([]byte(r))
 	}
 	return

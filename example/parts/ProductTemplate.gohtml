@@ -1,0 +1,20 @@
+@{
+    import  (
+        "github.com/theplant/containers/example/models"
+        "github.com/theplant/containers/example/events"
+        "github.com/theplant/containers/example/actions"
+        "github.com/theplant/containers"
+
+    )
+    var p *models.Product
+    var addToCartEvent *events.AddToCartEvent
+}
+<div>
+    <h1>p.Name</h1>
+
+    <form>
+        <input type="hidden" name="VariantId"/>
+        <a href="#" data-event="@containers.ActionOn("click", actions.AddToCart, addToCartEvent)">Add To Cart</a>
+    </form> 
+
+</div>
