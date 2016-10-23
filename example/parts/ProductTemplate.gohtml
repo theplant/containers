@@ -1,20 +1,35 @@
 @{
     import  (
         "github.com/theplant/containers/example/models"
-        "github.com/theplant/containers/example/events"
-        "github.com/theplant/containers/example/actions"
-        "github.com/theplant/containers"
 
     )
     var p *models.Product
-    var addToCartEvent *events.AddToCartEvent
 }
 <div>
     <h1>@p.Name</h1>
 
     <form>
-        <input type="hidden" name="VariantId"/>
-        <a href="#" data-event="@containers.ActionOn("click", actions.AddToCart, addToCartEvent)">Add To Cart</a>
+        <input type="hidden" name="VariantId" value="111222"/>
+        <a href="#" data-container-event="cart_updated" class="addToCart">Add To Cart</a>
     </form> 
 
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
+<script type="text/javascript">
+
+document.addEventListener("click", postAction);
+
+function postAction(e) {
+    console.log(e)
+    const event = e.target.dataset.containerEvent
+    if (event != null) {
+        var varid = document.querySelector("input[name=VariantId]")
+        fetch("/actions/addToCart", {
+            VariantId: varid.value
+        }).then(function(res){
+            postEvent(event)
+        })
+    }
+}
+
+</script>

@@ -20,20 +20,12 @@ func (f containerFunc) Render(r *http.Request) (html string, err error) {
 
 type Layout func(r *http.Request, body string) (html string, err error)
 
-type Action func(r *http.Request) (redirectUrl string, events []Event, err error)
-
-type Event interface {
-}
+type Action func(r *http.Request) (events []string, err error)
 
 type Page interface {
 	Containers(r *http.Request) (cs []Container, err error)
 }
 
 func Handler(page Page, layout Layout) http.Handler {
-
 	return &MainHandler{page, layout}
-}
-
-func ReloadContainerOn(c Container, events ...string) {
-	return
 }

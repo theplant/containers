@@ -3,15 +3,13 @@ package parts
 import (
 	"bytes"
 	"github.com/sipin/gorazor/gorazor"
-	"github.com/theplant/containers/example/models"
-	"strings"
 )
 
-func HeaderTemplate(p *models.Product) string {
+func HeaderTemplate(cartCount int) string {
 	var _buffer bytes.Buffer
-	_buffer.WriteString("\n<header>\n  <h1>Hello ")
-	_buffer.WriteString(gorazor.HTMLEscape(strings.TrimSpace(p.Name)))
-	_buffer.WriteString("</h1>\n</header>")
+	_buffer.WriteString("\n<div data-container-reloadon=\"cart_updated\">\n<header style=\"padding: 20px; background-color: #ddd;\">\n  This is a header, cart(")
+	_buffer.WriteString(gorazor.HTMLEscape(cartCount))
+	_buffer.WriteString(")\n</header>\n</div>")
 
 	return _buffer.String()
 }
