@@ -12,13 +12,23 @@ import (
 type HomePage struct {
 }
 
+func reloadable(event string, container containers.Container) containers.Container {
+	return toC(func(r *http.Request) (html string, err error) {
+		c, err := container.Content(r)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("<div data-container-reloadon=\"%s\">%s</div>", event, c), nil
+	})
+}
+
 func toC(f func(r *http.Request) (html string, err error)) containers.Container {
 	return containers.ContainerFunc(f)
 }
 
-func makeContainer(label int) containers.Container {
+func makeContainer(label int, event string) containers.Container {
 	return toC(func(r *http.Request) (html string, err error) {
-		return fmt.Sprintf("<button data-container-event=\"a\" data-container-reloadon=\"a\">%d</button>", label), nil
+		return fmt.Sprintf("<button data-container-event=\"%s\">%d</button>", event, label), nil
 	})
 }
 
@@ -58,12 +68,25 @@ func (hp *HomePage) Containers(r *http.Request) (cs []containers.Container, err 
 	return []containers.Container{
 		text("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js\"></script>"),
 		text("<a href=\"/products\">products</a>"),
-		repeat(makeContainer(1)),
-		makeContainer(rand.Int()),
-		text(fmt.Sprintf("a random number that doesn't change: %d", rand.Int())),
-		makeContainer(rand.Int()),
-		text("the next button should trigger events, but not reload itself"),
-		text(fmt.Sprintf("<button data-container-event=\"a\">%d</button>", rand.Int())),
+		text("triggers `a`, no reload"),
+		makeContainer(rand.Int(), "a"),
+		text("triggers `b`, no reload"),
+		makeContainer(rand.Int(), "b"),
+
+		text("<h1>reload on `a`</h1>"),
+		text("triggers `b`"),
+		reloadable("a", makeContainer(rand.Int(), "b")),
+		text("triggers `a`"),
+		reloadable("a", makeContainer(rand.Int(), "a")),
+		reloadable("a", text(fmt.Sprintf("static: %d", rand.Int()))),
+
+		text("<h1>reload on `b`</h1>"),
+		text("triggers `b`"),
+		reloadable("b", makeContainer(rand.Int(), "b")),
+		text("triggers `a`"),
+		reloadable("b", makeContainer(rand.Int(), "a")),
+		reloadable("b", text(fmt.Sprintf("static: %d", rand.Int()))),
+
 		wrap(fileContainer("script.js"), "script"),
 	}, nil
 }
