@@ -15,7 +15,8 @@ type Page interface {
 	Containers(r *http.Request) (cs []Container, err error)
 }
 
-func GET(relativePath string, page Page, layout Layout) {
+func GET(mux HandleFuncMux, pattern string, page Page, layout Layout) {
+	mux.HandleFunc(pattern, mainHandleFunc(page, layout))
 	return
 }
 
