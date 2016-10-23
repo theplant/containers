@@ -1,10 +1,10 @@
 @{
     import  (
-        "github.com/theplant/containers/example/models"
-        "strings" 
     )
-    var p *models.Product
+    var cartCount int
 }
-<header>
-  <h1>Hello @strings.TrimSpace(p.Name)</h1>
+<div data-container-reloadon="cart_updated">
+<header style="padding: 20px; background-color: #ddd;">
+  This is a header, cart(@cartCount)
 </header>
+</div>
