@@ -18,7 +18,7 @@ func toC(f func(r *http.Request) (html string, err error)) containers.Container 
 
 func makeContainer(label int) containers.Container {
 	return toC(func(r *http.Request) (html string, err error) {
-		return fmt.Sprintf("<div data-events=\"a\"><button data-container-action>%d</button></div>", label), nil
+		return fmt.Sprintf("<button data-container-event=\"a\" data-container-reloadon=\"a\">%d</button>", label), nil
 	})
 }
 
@@ -57,12 +57,13 @@ func text(text string) containers.Container {
 func (hp *HomePage) Containers(r *http.Request) (cs []containers.Container, err error) {
 	return []containers.Container{
 		text("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js\"></script>"),
+		text("<a href=\"/products\">products</a>"),
 		repeat(makeContainer(1)),
 		makeContainer(rand.Int()),
 		text(fmt.Sprintf("a random number that doesn't change: %d", rand.Int())),
 		makeContainer(rand.Int()),
 		text("the next button should trigger events, but not reload itself"),
-		text(fmt.Sprintf("<button data-container-action>%d</button>", rand.Int())),
+		text(fmt.Sprintf("<button data-container-event=\"a\">%d</button>", rand.Int())),
 		wrap(fileContainer("script.js"), "script"),
 	}, nil
 }
