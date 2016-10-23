@@ -12,42 +12,46 @@ import (
 type HomePage struct {
 }
 
+func toC(f func(r *http.Request) (html string, err error)) containers.Container {
+	return containers.ContainerFunc(f)
+}
+
 func makeContainer(label int) containers.Container {
-	return func(r *http.Request) (html string, err error) {
+	return toC(func(r *http.Request) (html string, err error) {
 		return fmt.Sprintf("<div data-events=\"a\"><button data-container-action>%d</button></div>", label), nil
-	}
+	})
 }
 
 func repeat(c containers.Container) containers.Container {
-	return func(r *http.Request) (html string, err error) {
-		out, _ := c(r)
-		out2, _ := c(r)
+	return toC(func(r *http.Request) (html string, err error) {
+		out, _ := c.Content(r)
+		out2, _ := c.Content(r)
 		return out + out2, nil
-	}
+	})
 }
 
 func wrap(c containers.Container, el string) containers.Container {
-	return func(r *http.Request) (string, error) {
-		out, err := c(r)
+	return toC(func(r *http.Request) (string, error) {
+		out, err := c.Content(r)
 		if err != nil {
 			return "", err
 		} else {
 			return fmt.Sprintf("<%s>%s</%s>", el, out, el), nil
 		}
-	}
+	})
 }
 
 func fileContainer(filename string) containers.Container {
-	return func(r *http.Request) (string, error) {
+	return toC(func(r *http.Request) (string, error) {
 		b, err := ioutil.ReadFile(filename)
 		return string(b), err
-	}
+	})
 }
 
 func text(text string) containers.Container {
-	return func(r *http.Request) (string, error) {
+	return toC(func(r *http.Request) (string, error) {
 		return text, nil
-	}
+	})
 }
 
 func (hp *HomePage) Containers(r *http.Request) (cs []containers.Container, err error) {

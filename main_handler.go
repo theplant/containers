@@ -28,7 +28,7 @@ func mainHandleFunc(page Page, layout Layout) (r func(http.ResponseWriter, *http
 		buf := bytes.NewBuffer(nil)
 
 		for _, c := range cs {
-			html, err = c(r)
+			html, err = c.Content(r)
 			if err != nil {
 				handleError(w, r, err)
 				return
@@ -74,7 +74,7 @@ func (mh *MainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 func writePage(res http.ResponseWriter, req *http.Request, cs []Container) {
 	for i, c := range cs {
-		r, err := c(req)
+		r, err := c.Content(req)
 		if err != nil {
 			handleError(res, req, err)
 		} else {
@@ -91,7 +91,7 @@ func writeContainerList(res http.ResponseWriter, req *http.Request, cs []Contain
 		if err != nil {
 			handleError(res, req, err)
 		} else {
-			r, _ := cs[i](req)
+			r, _ := cs[i].Content(req)
 			if err != nil {
 				handleError(res, req, err)
 			} else {

@@ -3,14 +3,14 @@ package pages
 import (
 	"net/http"
 
-	"github.com/theplant/containers"
+	c "github.com/theplant/containers"
 	"github.com/theplant/containers/example/parts"
 )
 
 type ProductPage struct {
 }
 
-func (pp *ProductPage) Containers(r *http.Request) (cs []containers.Container, err error) {
-	cs = []containers.Container{parts.Header, parts.Product, parts.Footer}
+func (pp *ProductPage) Containers(r *http.Request) (cs []c.Container, err error) {
+	cs = []c.Container{c.ContainerFunc(parts.Header), c.ContainerFunc(parts.Product), c.ContainerFunc(parts.Footer)}
 	return
 }

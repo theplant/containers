@@ -13,5 +13,5 @@ func Header(r *http.Request) (html string, err error) {
 }
 
 func init() {
-	containers.ReloadContainerOn(Header, "events.CartUpdated", "events.MenuUpdated")
+	containers.ReloadContainerOn(containers.ContainerFunc(Header), "events.CartUpdated", "events.MenuUpdated")
 }
