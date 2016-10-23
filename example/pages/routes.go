@@ -7,5 +7,4 @@ import (
 
 func AddRoutes(mux containers.HandleFuncMux) {
 	containers.GET(mux, "/products", &ProductPage{}, parts.MainLayout)
-	containers.GET(mux, "/", &HomePage{}, parts.MainLayout)
 }
