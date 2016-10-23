@@ -22,6 +22,16 @@ func reloadable(event string, container containers.Container) containers.Contain
 	})
 }
 
+func onlyOnReload(container containers.Container) containers.Container {
+	return toC(func(r *http.Request) (html string, err error) {
+		h := r.Header.Get("Accept")
+		if h != "application/x-container-list" {
+			return "waiting for reload...", nil
+		}
+		return container.Content(r)
+	})
+}
+
 func toC(f func(r *http.Request) (html string, err error)) containers.Container {
 	return containers.ContainerFunc(f)
 }
@@ -86,6 +96,8 @@ func (hp *HomePage) Containers(r *http.Request) (cs []containers.Container, err 
 		text("triggers `a`"),
 		reloadable("b", makeContainer(rand.Int(), "a")),
 		reloadable("b", text(fmt.Sprintf("static: %d", rand.Int()))),
+
+		reloadable("b", onlyOnReload(text("reloaded!"))),
 
 		wrap(fileContainer("script.js"), "script"),
 	}, nil
