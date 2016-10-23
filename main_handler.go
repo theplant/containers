@@ -10,45 +10,6 @@ import (
 	"strings"
 )
 
-type HandleFuncMux interface {
-	HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
-}
-
-func mainHandleFunc(page Page, layout Layout) (r func(http.ResponseWriter, *http.Request)) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var err error
-		var cs []Container
-		cs, err = page.Containers(r)
-		if err != nil {
-			handleError(w, r, err)
-			return
-		}
-
-		var html string
-		buf := bytes.NewBuffer(nil)
-
-		for _, c := range cs {
-			html, err = c.Content(r)
-			if err != nil {
-				handleError(w, r, err)
-				return
-			}
-			buf.WriteString(html)
-		}
-		html, err = layout(r, buf.String())
-		if err != nil {
-			handleError(w, r, err)
-			return
-		}
-
-		_, err = fmt.Fprintln(w, html)
-		if err != nil {
-			handleError(w, r, err)
-		}
-		return
-	}
-}
-
 func handleError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Println(err)
 	w.WriteHeader(http.StatusInternalServerError)
@@ -57,7 +18,8 @@ func handleError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 type MainHandler struct {
-	Page Page
+	Page   Page
+	Layout Layout
 }
 
 func (mh *MainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -68,19 +30,28 @@ func (mh *MainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	} else if h == "application/x-container-list" {
 		writeContainerList(res, req, cs)
 	} else {
-		writePage(res, req, cs)
+		writePage(res, req, cs, mh.Layout)
 	}
 }
 
-func writePage(res http.ResponseWriter, req *http.Request, cs []Container) {
+func writePage(res http.ResponseWriter, req *http.Request, cs []Container, layout Layout) {
+	buf := bytes.NewBuffer(nil)
 	for i, c := range cs {
-		r, err := c.Content(req)
+		r, err := c.Render(req)
 		if err != nil {
 			handleError(res, req, err)
-		} else {
-			res.Write([]byte(fmt.Sprintf("<div data-container-id=\"%d\">%s</div>", i, r)))
+			return
 		}
+
+		buf.WriteString(fmt.Sprintf("<div data-container-id=\"%d\">%s</div>", i, r))
 	}
+
+	html, err := layout(req, buf.String())
+	if err != nil {
+		handleError(res, req, err)
+		return
+	}
+	fmt.Fprintln(res, html)
 }
 
 func writeContainerList(res http.ResponseWriter, req *http.Request, cs []Container) {
@@ -91,7 +62,7 @@ func writeContainerList(res http.ResponseWriter, req *http.Request, cs []Contain
 		if err != nil {
 			handleError(res, req, err)
 		} else {
-			r, _ := cs[i].Content(req)
+			r, _ := cs[i].Render(req)
 			if err != nil {
 				handleError(res, req, err)
 			} else {

@@ -3,7 +3,7 @@ package containers
 import "net/http"
 
 type Container interface {
-	Content(r *http.Request) (html string, err error)
+	Render(r *http.Request) (html string, err error)
 }
 
 func ContainerFunc(f func(r *http.Request) (html string, err error)) Container {
@@ -14,7 +14,7 @@ type containerFunc struct {
 	cf func(r *http.Request) (html string, err error)
 }
 
-func (f containerFunc) Content(r *http.Request) (html string, err error) {
+func (f containerFunc) Render(r *http.Request) (html string, err error) {
 	return f.cf(r)
 }
 
@@ -29,9 +29,9 @@ type Page interface {
 	Containers(r *http.Request) (cs []Container, err error)
 }
 
-func GET(mux HandleFuncMux, pattern string, page Page, layout Layout) {
-	mux.HandleFunc(pattern, mainHandleFunc(page, layout))
-	return
+func Handler(page Page, layout Layout) http.Handler {
+
+	return &MainHandler{page, layout}
 }
 
 func ReloadContainerOn(c Container, events ...string) {
