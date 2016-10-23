@@ -8,14 +8,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/theplant/containers"
 	"github.com/theplant/containers/example/pages"
+	"github.com/theplant/containers/example/parts"
 )
-
-func tsServer() *httptest.Server {
-	mux := http.NewServeMux()
-	pages.AddRoutes(mux)
-	return httptest.NewServer(mux)
-}
 
 func bodyString(res *http.Response) (r string) {
 	b, _ := ioutil.ReadAll(res.Body)
@@ -24,11 +20,22 @@ func bodyString(res *http.Response) (r string) {
 	return
 }
 
-func TestHome(t *testing.T) {
-	ts := tsServer()
+func TestProducts(t *testing.T) {
+	ts := httptest.NewServer(containers.Handler(&pages.ProductPage{}, parts.MainLayout))
 	defer ts.Close()
 
-	res, err := http.Get(ts.URL + "/products")
+	res, err := http.Get(ts.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(bodyString(res))
+}
+
+func TestHome(t *testing.T) {
+	ts := httptest.NewServer(containers.Handler(&pages.HomePage{}, parts.MainLayout))
+	defer ts.Close()
+
+	res, err := http.Get(ts.URL)
 	if err != nil {
 		log.Fatal(err)
 	}

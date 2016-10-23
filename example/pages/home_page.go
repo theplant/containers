@@ -24,8 +24,8 @@ func makeContainer(label int, event string) containers.Container {
 
 func repeat(c containers.Container) containers.Container {
 	return toC(func(r *http.Request) (html string, err error) {
-		out, _ := c.Content(r)
-		out2, _ := c.Content(r)
+		out, _ := c.Render(r)
+		out2, _ := c.Render(r)
 		return out + out2, nil
 	})
 }

@@ -9,7 +9,7 @@ import (
 
 func Reloadable(event string, container containers.Container) containers.Container {
 	return containers.ContainerFunc(func(r *http.Request) (html string, err error) {
-		c, err := container.Content(r)
+		c, err := container.Render(r)
 		if err != nil {
 			return "", err
 		}
@@ -23,6 +23,6 @@ func OnlyOnReload(container containers.Container) containers.Container {
 		if h != "application/x-container-list" {
 			return "waiting for reload...", nil
 		}
-		return container.Content(r)
+		return container.Render(r)
 	})
 }

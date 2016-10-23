@@ -8,7 +8,7 @@ import (
 
 func Wrap(c Container, el string) Container {
 	return ContainerFunc(func(r *http.Request) (string, error) {
-		out, err := c.Content(r)
+		out, err := c.Render(r)
 		if err != nil {
 			return "", err
 		} else {
