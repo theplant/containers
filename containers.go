@@ -26,6 +26,6 @@ type Page interface {
 	Containers(r *http.Request) (cs []Container, err error)
 }
 
-func Handler(page Page, layout Layout) http.Handler {
-	return &MainHandler{page, layout}
+type Reloadable interface {
+	ReloadEvent() string
 }

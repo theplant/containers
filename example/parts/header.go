@@ -6,7 +6,14 @@ import (
 	"github.com/theplant/containers/example/actions"
 )
 
-func Header(r *http.Request) (html string, err error) {
+type Header struct {
+}
+
+func (h *Header) Render(r *http.Request) (html string, err error) {
 	html = HeaderTemplate(actions.CartCount)
 	return
+}
+
+func (h *Header) ReloadEvent() string {
+	return "cart_updated"
 }

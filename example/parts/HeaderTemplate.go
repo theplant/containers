@@ -7,9 +7,9 @@ import (
 
 func HeaderTemplate(cartCount int) string {
 	var _buffer bytes.Buffer
-	_buffer.WriteString("\n<div data-container-reloadon=\"cart_updated\">\n<header style=\"padding: 20px; background-color: #ddd;\">\n  This is a header, cart(")
+	_buffer.WriteString("\n<header style=\"padding: 20px; background-color: #ddd;\">\n  This is a header, cart(")
 	_buffer.WriteString(gorazor.HTMLEscape(cartCount))
-	_buffer.WriteString(")\n</header>\n</div>")
+	_buffer.WriteString(")\n</header>")
 
 	return _buffer.String()
 }

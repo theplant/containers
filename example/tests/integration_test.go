@@ -8,9 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/theplant/containers"
 	"github.com/theplant/containers/example/pages"
 	"github.com/theplant/containers/example/parts"
+	"github.com/theplant/containers/handlers"
 )
 
 func bodyString(res *http.Response) (r string) {
@@ -21,7 +21,7 @@ func bodyString(res *http.Response) (r string) {
 }
 
 func TestProducts(t *testing.T) {
-	ts := httptest.NewServer(containers.Handler(&pages.ProductPage{}, parts.MainLayout))
+	ts := httptest.NewServer(handlers.PageHandler(&pages.ProductPage{}, parts.MainLayout))
 	defer ts.Close()
 
 	res, err := http.Get(ts.URL)
@@ -32,7 +32,7 @@ func TestProducts(t *testing.T) {
 }
 
 func TestHome(t *testing.T) {
-	ts := httptest.NewServer(containers.Handler(&pages.HomePage{}, parts.MainLayout))
+	ts := httptest.NewServer(handlers.PageHandler(&pages.HomePage{}, parts.MainLayout))
 	defer ts.Close()
 
 	res, err := http.Get(ts.URL)
