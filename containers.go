@@ -25,7 +25,3 @@ type Action func(r *http.Request) (events []string, err error)
 type Page interface {
 	Containers(r *http.Request) (cs []Container, err error)
 }
-
-type Reloadable interface {
-	ReloadEvent() string
-}
