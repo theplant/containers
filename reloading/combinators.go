@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/theplant/containers"
+	ct "github.com/theplant/containers"
+	cb "github.com/theplant/containers/combinators"
 )
 
-func WithReloadEvent(event string, container containers.Container) containers.Container {
-	return containers.ContainerFunc(func(r *http.Request) (html string, err error) {
+func WithReloadEvent(event string, container ct.Container) ct.Container {
+	return cb.ContainerFunc(func(r *http.Request) (html string, err error) {
 		c, err := container.Render(r)
 		if err != nil {
 			return "", err
@@ -17,8 +18,8 @@ func WithReloadEvent(event string, container containers.Container) containers.Co
 	})
 }
 
-func OnlyOnReload(container containers.Container) containers.Container {
-	return containers.ContainerFunc(func(r *http.Request) (html string, err error) {
+func OnlyOnReload(container ct.Container) ct.Container {
+	return cb.ContainerFunc(func(r *http.Request) (html string, err error) {
 		h := r.Header.Get("Accept")
 		if h != "application/x-container-list" {
 			return "waiting for reload...", nil

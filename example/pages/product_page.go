@@ -3,7 +3,8 @@ package pages
 import (
 	"net/http"
 
-	c "github.com/theplant/containers"
+	ct "github.com/theplant/containers"
+	cb "github.com/theplant/containers/combinators"
 	"github.com/theplant/containers/example/parts"
 	rl "github.com/theplant/containers/reloading"
 )
@@ -11,11 +12,11 @@ import (
 type ProductPage struct {
 }
 
-func (pp *ProductPage) Containers(r *http.Request) (cs []c.Container, err error) {
-	cs = []c.Container{
+func (pp *ProductPage) Containers(r *http.Request) (cs []ct.Container, err error) {
+	cs = []ct.Container{
 		rl.WithReloadEvent("cart_updated", &parts.Header{}),
-		c.ContainerFunc(parts.Product),
-		c.ContainerFunc(parts.Footer),
+		cb.ContainerFunc(parts.Product),
+		cb.ContainerFunc(parts.Footer),
 	}
 	return
 }
