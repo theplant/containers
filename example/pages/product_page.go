@@ -5,7 +5,7 @@ import (
 
 	c "github.com/theplant/containers"
 	"github.com/theplant/containers/example/parts"
-	"github.com/theplant/containers/reloading"
+	rl "github.com/theplant/containers/reloading"
 )
 
 type ProductPage struct {
@@ -13,10 +13,9 @@ type ProductPage struct {
 
 func (pp *ProductPage) Containers(r *http.Request) (cs []c.Container, err error) {
 	cs = []c.Container{
-		reloading.Reloadable("cart_updated", &parts.Header{}),
+		rl.WithReloadEvent("cart_updated", &parts.Header{}),
 		c.ContainerFunc(parts.Product),
 		c.ContainerFunc(parts.Footer),
-		reloading.ReloadingScript(),
 	}
 	return
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/theplant/containers"
 )
 
-func Reloadable(event string, container containers.Container) containers.Container {
+func WithReloadEvent(event string, container containers.Container) containers.Container {
 	return containers.ContainerFunc(func(r *http.Request) (html string, err error) {
 		c, err := container.Render(r)
 		if err != nil {

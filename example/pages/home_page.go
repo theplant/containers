@@ -47,21 +47,37 @@ func (hp *HomePage) Containers(req *http.Request) (cs []containers.Container, er
 
 		text("<h1>reload on `a`</h1>"),
 		text("triggers `b`"),
-		r.Reloadable("a", makeContainer(rand.Int(), "b")),
+		r.WithReloadEvent("a", makeContainer(rand.Int(), "b")),
 		text("triggers `a`"),
-		r.Reloadable("a", makeContainer(rand.Int(), "a")),
-		r.Reloadable("a", text(fmt.Sprintf("static: %d", rand.Int()))),
+		r.WithReloadEvent("a", makeContainer(rand.Int(), "a")),
+		r.WithReloadEvent("a", text(fmt.Sprintf("static: %d", rand.Int()))),
 
 		text("<h1>reload on `b`</h1>"),
 		text("triggers `b`"),
-		r.Reloadable("b", makeContainer(rand.Int(), "b")),
+		r.WithReloadEvent("b", makeContainer(rand.Int(), "b")),
 		text("triggers `a`"),
-		r.Reloadable("b", makeContainer(rand.Int(), "a")),
-		r.Reloadable("b", text(fmt.Sprintf("static: %d", rand.Int()))),
+		r.WithReloadEvent("b", makeContainer(rand.Int(), "a")),
+		r.WithReloadEvent("b", text(fmt.Sprintf("static: %d", rand.Int()))),
 
-		r.Reloadable("b", r.OnlyOnReload(text("reloaded!"))),
+		r.WithReloadEvent("b", r.OnlyOnReload(text("reloaded!"))),
 
-		r.ReloadingScript(),
-		containers.Script("script.js"),
+		containers.ScriptByString(applicationScript),
 	}, nil
 }
+
+var applicationScript = `
+//////////////////////////////////////////
+// Application code
+
+// dummy method for triggering some kind of "action"
+document.addEventListener("click", postAction);
+
+function postAction(e) {
+    console.log(e)
+    const event = e.target.dataset.containerEvent
+    if (event != null) {
+        setTimeout(() => postEvent(event), 100);
+    }
+}
+
+`

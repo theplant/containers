@@ -19,23 +19,23 @@ func handleError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 type mainHandler struct {
-	Page   Page
-	Layout Layout
+	page   Page
+	layout Layout
 }
 
 func (mh *mainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	cs, err := mh.Page.Containers(req)
+	cs, err := mh.page.Containers(req)
 	buf := bytes.NewBuffer(nil)
-	for i, c := range cs {
+	for _, c := range cs {
 		r, err := c.Render(req)
 		if err != nil {
 			handleError(res, req, err)
 			return
 		}
-		buf.WriteString(fmt.Sprintf("<div data-container-id=\"%d\">%s</div>", i, r))
+		buf.WriteString(r)
 	}
 
-	html, err := mh.Layout(req, buf.String())
+	html, err := mh.layout(req, buf.String())
 	if err != nil {
 		handleError(res, req, err)
 		return

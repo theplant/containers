@@ -8,16 +8,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/theplant/containers"
+	c "github.com/theplant/containers"
 )
 
-func ReloadingScript() containers.Container {
-	return containers.Script("reload.js")
+func ReloadingScript() c.Container {
+	return c.ScriptByString(reloadscript)
 }
 
 type reloadableHandler struct {
 	handler http.Handler
-	page    containers.Page
+	page    c.Page
 }
 
 func (rh *reloadableHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -36,11 +36,30 @@ func (rh *reloadableHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 	rh.handler.ServeHTTP(res, req)
 }
 
-func ReloadablePageHandler(page containers.Page, layout containers.Layout) http.Handler {
-	return &reloadableHandler{handler: containers.PageHandler(page, layout), page: page}
+type wrapWithIdPage struct {
+	page c.Page
 }
 
-func writeContainerList(res http.ResponseWriter, req *http.Request, cs []containers.Container) {
+func (withId *wrapWithIdPage) Containers(r *http.Request) (cs []c.Container, err error) {
+	var ics []c.Container
+	ics, err = withId.page.Containers(r)
+	if err != nil {
+		return
+	}
+	for i, oc := range ics {
+		cw := c.Wrap(oc, "div", c.Attrs{"data-container-id": fmt.Sprintf("%d", i)})
+		cs = append(cs, cw)
+	}
+	cs = append(cs, c.Wrap(c.StringContainer(""), "script", c.Attrs{"src": "https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"}))
+	cs = append(cs, ReloadingScript())
+	return
+}
+
+func ReloadablePageHandler(page c.Page, layout c.Layout) http.Handler {
+	return &reloadableHandler{handler: c.PageHandler(&wrapWithIdPage{page}, layout), page: page}
+}
+
+func writeContainerList(res http.ResponseWriter, req *http.Request, cs []c.Container) {
 	out := map[int]string{}
 	clist := strings.Split(req.URL.Query().Get("c"), ",")
 	for _, is := range clist {
