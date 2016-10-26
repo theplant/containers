@@ -5,24 +5,25 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/theplant/containers"
-	r "github.com/theplant/containers/reloading"
+	ct "github.com/theplant/containers"
+	cb "github.com/theplant/containers/combinators"
+	rl "github.com/theplant/containers/reloading"
 )
 
 type HomePage struct {
 }
 
-func toC(f func(r *http.Request) (html string, err error)) containers.Container {
-	return containers.ContainerFunc(f)
+func toC(f func(r *http.Request) (html string, err error)) ct.Container {
+	return cb.ToContainer(f)
 }
 
-func makeContainer(label int, event string) containers.Container {
+func makeContainer(label int, event string) ct.Container {
 	return toC(func(r *http.Request) (html string, err error) {
 		return fmt.Sprintf("<button data-container-event=\"%s\">%d</button>", event, label), nil
 	})
 }
 
-func repeat(c containers.Container) containers.Container {
+func repeat(c ct.Container) ct.Container {
 	return toC(func(r *http.Request) (html string, err error) {
 		out, _ := c.Render(r)
 		out2, _ := c.Render(r)
@@ -30,14 +31,14 @@ func repeat(c containers.Container) containers.Container {
 	})
 }
 
-func text(text string) containers.Container {
+func text(text string) ct.Container {
 	return toC(func(r *http.Request) (string, error) {
 		return text, nil
 	})
 }
 
-func (hp *HomePage) Containers(req *http.Request) (cs []containers.Container, err error) {
-	return []containers.Container{
+func (hp *HomePage) Containers(req *http.Request) (cs []ct.Container, err error) {
+	return []ct.Container{
 		text("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js\"></script>"),
 		text("<a href=\"/products\">products</a>"),
 		text("triggers `a`, no reload"),
@@ -47,21 +48,37 @@ func (hp *HomePage) Containers(req *http.Request) (cs []containers.Container, er
 
 		text("<h1>reload on `a`</h1>"),
 		text("triggers `b`"),
-		r.Reloadable("a", makeContainer(rand.Int(), "b")),
+		rl.WithReloadEvent("a", makeContainer(rand.Int(), "b")),
 		text("triggers `a`"),
-		r.Reloadable("a", makeContainer(rand.Int(), "a")),
-		r.Reloadable("a", text(fmt.Sprintf("static: %d", rand.Int()))),
+		rl.WithReloadEvent("a", makeContainer(rand.Int(), "a")),
+		rl.WithReloadEvent("a", text(fmt.Sprintf("static: %d", rand.Int()))),
 
 		text("<h1>reload on `b`</h1>"),
 		text("triggers `b`"),
-		r.Reloadable("b", makeContainer(rand.Int(), "b")),
+		rl.WithReloadEvent("b", makeContainer(rand.Int(), "b")),
 		text("triggers `a`"),
-		r.Reloadable("b", makeContainer(rand.Int(), "a")),
-		r.Reloadable("b", text(fmt.Sprintf("static: %d", rand.Int()))),
+		rl.WithReloadEvent("b", makeContainer(rand.Int(), "a")),
+		rl.WithReloadEvent("b", text(fmt.Sprintf("static: %d", rand.Int()))),
 
-		r.Reloadable("b", r.OnlyOnReload(text("reloaded!"))),
+		rl.WithReloadEvent("b", rl.OnlyOnReload(text("reloaded!"))),
 
-		r.ReloadingScript(),
-		containers.Script("script.js"),
+		cb.ScriptByString(applicationScript),
 	}, nil
 }
+
+var applicationScript = `
+//////////////////////////////////////////
+// Application code
+
+// dummy method for triggering some kind of "action"
+document.addEventListener("click", postAction);
+
+function postAction(e) {
+    console.log(e)
+    const event = e.target.dataset.containerEvent
+    if (event != null) {
+        setTimeout(() => postEvent(event), 100);
+    }
+}
+
+`

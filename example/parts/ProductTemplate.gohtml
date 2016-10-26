@@ -1,20 +1,26 @@
 @{
     import  (
         "github.com/theplant/containers/example/models"
-        "github.com/theplant/containers/example/events"
-        "github.com/theplant/containers/example/actions"
-        "github.com/theplant/containers"
 
     )
     var p *models.Product
-    var addToCartEvent *events.AddToCartEvent
 }
 <div>
     <h1>@p.Name</h1>
-
-    <form>
-        <input type="hidden" name="VariantId"/>
-        <a href="#" data-event="@containers.ActionOn("click", actions.AddToCart, addToCartEvent)">Add To Cart</a>
-    </form> 
+    <button onclick="addToCart(111222)" class="addToCart">Add To Cart</button>
 
 </div>
+<script type="text/javascript">
+
+function addToCart(variantId) {
+    const body = new FormData();
+    body.append("VariantId", variantId);
+    fetch("/actions/addToCart", {
+        method: "POST",
+        body: body,
+    }).then(function(res){
+        postEvent("cart_updated")
+    }).catch(e => alert(e));
+}
+
+</script>

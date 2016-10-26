@@ -1,24 +1,24 @@
 package actions
 
 import (
-	"errors"
+	"log"
 	"net/http"
-
-	"github.com/theplant/containers"
-	"github.com/theplant/containers/example/events"
 )
 
-func AddToCart(r *http.Request) (redirectUrl string, evts []containers.Event, err error) {
-	ctx := r.Context()
-	var addToCartEvent *events.AddToCartEvent
-	if e := ctx.Value("events.AddToCartEvent"); e != nil {
-		addToCartEvent = e.(*events.AddToCartEvent)
-	}
-	if addToCartEvent == nil {
-		err = errors.New("Need to provide variant id")
-		return
+var CartCount int
+
+func AddToCart(w http.ResponseWriter, r *http.Request) {
+	// ctx := r.Context()
+	var variantId = r.FormValue("VariantId")
+	log.Println("AddToCart called: ", variantId)
+	if len(variantId) == 0 {
+		// err = errors.New("Need to provide variant id")
+		// return
 	}
 
-	evts = []containers.Event{&events.CartUpdated{CartId: "111"}}
+	// Do database operation for add_to_cart
+
+	CartCount++
+
 	return
 }

@@ -1,3 +1,6 @@
+package reloading
+
+var reloadscript = `
 //////////////////////////////////////////
 // Framework code
 
@@ -65,3 +68,5 @@ function fetchContainers(ids) {
 
     return fetch(url, reqData).then(r => r.json())
 }
+
+`
