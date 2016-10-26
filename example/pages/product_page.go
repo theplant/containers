@@ -15,8 +15,8 @@ type ProductPage struct {
 func (pp *ProductPage) Containers(r *http.Request) (cs []ct.Container, err error) {
 	cs = []ct.Container{
 		rl.WithReloadEvent("cart_updated", &parts.Header{}),
-		cb.ContainerFunc(parts.Product),
-		cb.ContainerFunc(parts.Footer),
+		cb.ToContainer(parts.Product),
+		cb.ToContainer(parts.Footer),
 	}
 	return
 }

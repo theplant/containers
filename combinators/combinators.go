@@ -9,12 +9,12 @@ import (
 	ct "github.com/theplant/containers"
 )
 
-func ContainerFunc(f func(r *http.Request) (html string, err error)) ct.Container {
+func ToContainer(f ct.ContainerFunc) ct.Container {
 	return containerFunc{f}
 }
 
 type containerFunc struct {
-	cf func(r *http.Request) (html string, err error)
+	cf ct.ContainerFunc
 }
 
 func (f containerFunc) Render(r *http.Request) (html string, err error) {
@@ -22,21 +22,21 @@ func (f containerFunc) Render(r *http.Request) (html string, err error) {
 }
 
 type pageFunc struct {
-	pf func(r *http.Request) (cs []ct.Container, err error)
+	pf ct.PageFunc
 }
 
 func (p pageFunc) Containers(r *http.Request) (cs []ct.Container, err error) {
 	return p.pf(r)
 }
 
-func PageFunc(f func(r *http.Request) (cs []ct.Container, err error)) ct.Page {
+func ToPage(f ct.PageFunc) ct.Page {
 	return pageFunc{f}
 }
 
 type Attrs map[string]string
 
 func Wrap(c ct.Container, el string, attrs Attrs) ct.Container {
-	return ContainerFunc(func(r *http.Request) (string, error) {
+	return ToContainer(func(r *http.Request) (string, error) {
 		out, err := c.Render(r)
 		if err != nil {
 			return "", err
@@ -57,7 +57,7 @@ func Wrap(c ct.Container, el string, attrs Attrs) ct.Container {
 }
 
 func FileContainer(filename string) ct.Container {
-	return ContainerFunc(func(r *http.Request) (string, error) {
+	return ToContainer(func(r *http.Request) (string, error) {
 		b, err := ioutil.ReadFile(filename)
 		return string(b), err
 	})
@@ -68,7 +68,7 @@ func ScriptByFile(filename string) ct.Container {
 }
 
 func StringContainer(value string) ct.Container {
-	return ContainerFunc(func(r *http.Request) (string, error) {
+	return ToContainer(func(r *http.Request) (string, error) {
 		return value, nil
 	})
 }
