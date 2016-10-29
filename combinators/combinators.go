@@ -36,10 +36,13 @@ func ToPage(f ct.PageFunc) ct.Page {
 type Attrs map[string]string
 
 func Wrap(c ct.Container, el string, attrs Attrs) ct.Container {
-	return ToContainer(func(r *http.Request) (string, error) {
-		out, err := c.Render(r)
-		if err != nil {
-			return "", err
+	return ToContainer(func(r *http.Request) (html string, err error) {
+		var out string
+		if c != nil {
+			out, err = c.Render(r)
+			if err != nil {
+				return
+			}
 		}
 
 		attrsbuf := bytes.NewBuffer(nil)
