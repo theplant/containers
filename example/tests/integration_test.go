@@ -59,7 +59,7 @@ func TestStructuredPage(t *testing.T) {
 	}
 	body := bodyString(res)
 	// t.Error(body)
-	if strings.Index(body, "sidemenu1") < 0 {
+	if strings.Index(body, "sidemenu") < 0 {
 		t.Error(body)
 	}
 }
