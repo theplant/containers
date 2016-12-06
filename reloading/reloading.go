@@ -44,10 +44,10 @@ func (withId *wrapWithIdPage) Containers(r *http.Request) (cs []ct.Container, er
 		return
 	}
 	for i, oc := range ics {
-		cw := cb.Wrap(oc, "div", cb.Attrs{"data-container-id": fmt.Sprintf("%d", i)})
+		cw := cb.Wrap("div", cb.Attrs{"data-container-id": fmt.Sprintf("%d", i)}, oc)
 		cs = append(cs, cw)
 	}
-	cs = append(cs, cb.Wrap(cb.StringContainer(""), "script",
+	cs = append(cs, cb.Wrap("script",
 		cb.Attrs{"src": "https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"}))
 	cs = append(cs, cb.ScriptByString(reloadscript))
 	return

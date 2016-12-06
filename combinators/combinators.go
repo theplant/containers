@@ -35,11 +35,13 @@ func ToPage(f ct.PageFunc) ct.Page {
 
 type Attrs map[string]string
 
-func Wrap(c ct.Container, el string, attrs Attrs) ct.Container {
+func Wrap(el string, attrs Attrs, cs ...ct.Container) ct.Container {
 	return ToContainer(func(r *http.Request) (html string, err error) {
-		var out string
-		if c != nil {
-			out, err = c.Render(r)
+		var out = bytes.NewBuffer(nil)
+		for _, c := range cs {
+			var part string
+			part, err = c.Render(r)
+			out.WriteString(part)
 			if err != nil {
 				return
 			}
@@ -55,7 +57,7 @@ func Wrap(c ct.Container, el string, attrs Attrs) ct.Container {
 				attrsbuf.WriteString(`"`)
 			}
 		}
-		return fmt.Sprintf("<%s%s>%s</%s>\n", el, attrsbuf.String(), out, el), nil
+		return fmt.Sprintf("<%s%s>%s</%s>\n", el, attrsbuf.String(), out.String(), el), nil
 	})
 }
 
@@ -67,7 +69,7 @@ func FileContainer(filename string) ct.Container {
 }
 
 func ScriptByFile(filename string) ct.Container {
-	return Wrap(FileContainer(filename), "script", Attrs{"type": "text/javascript"})
+	return Wrap("script", Attrs{"type": "text/javascript"}, FileContainer(filename))
 }
 
 func StringContainer(value string) ct.Container {
@@ -77,5 +79,5 @@ func StringContainer(value string) ct.Container {
 }
 
 func ScriptByString(text string) ct.Container {
-	return Wrap(StringContainer(text), "script", Attrs{"type": "text/javascript"})
+	return Wrap("script", Attrs{"type": "text/javascript"}, StringContainer(text))
 }
