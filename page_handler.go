@@ -35,10 +35,14 @@ func (mh *mainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		buf.WriteString(r)
 	}
 
-	html, err := mh.layout(req, buf.String())
-	if err != nil {
-		handleError(res, req, err)
-		return
+	var html = buf.String()
+	if mh.layout != nil {
+		html, err = mh.layout(req, html)
+		if err != nil {
+			handleError(res, req, err)
+			return
+		}
 	}
+
 	fmt.Fprintln(res, html)
 }
