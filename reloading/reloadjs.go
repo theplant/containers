@@ -1,6 +1,6 @@
 package reloading
 
-var reloadscript = `
+var ReloadScript = `
 //////////////////////////////////////////
 // Framework code
 

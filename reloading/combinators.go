@@ -8,14 +8,26 @@ import (
 	cb "github.com/theplant/containers/combinators"
 )
 
+type reloadEvent struct {
+	c         ct.Container
+	eventName string
+}
+
+func (re *reloadEvent) EventName() string {
+	return re.eventName
+}
+
+func (re *reloadEvent) Render(r *http.Request) (html string, err error) {
+	chtml, err := re.c.Render(r)
+	if err != nil {
+		return
+	}
+	html = fmt.Sprintf("<div data-container-reloadon=\"%s\">%s</div>", re.eventName, chtml)
+	return
+}
+
 func WithReloadEvent(event string, container ct.Container) ct.Container {
-	return cb.ToContainer(func(r *http.Request) (html string, err error) {
-		c, err := container.Render(r)
-		if err != nil {
-			return "", err
-		}
-		return fmt.Sprintf("<div data-container-reloadon=\"%s\">%s</div>", event, c), nil
-	})
+	return &reloadEvent{container, event}
 }
 
 func OnlyOnReload(container ct.Container) ct.Container {

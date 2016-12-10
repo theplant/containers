@@ -19,7 +19,7 @@ func (sp *StructuredPage) Containers(r *http.Request) (cs []ct.Container, err er
 			cb.Wrap("aside", cb.Attrs{"class": "sidebar"},
 				cb.ToContainer(ProductAside),
 			),
-			cb.ToContainer(parts.Product),
+			&parts.Product{},
 		),
 		cb.ToContainer(parts.Footer),
 	}

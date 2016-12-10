@@ -61,7 +61,7 @@ func (hp *HomePage) Containers(req *http.Request) (cs []ct.Container, err error)
 		rl.WithReloadEvent("b", text(fmt.Sprintf("static: %d", rand.Int()))),
 
 		rl.WithReloadEvent("b", rl.OnlyOnReload(text("reloaded!"))),
-
+		cb.ScriptByString(rl.ReloadScript),
 		cb.ScriptByString(applicationScript),
 	}, nil
 }

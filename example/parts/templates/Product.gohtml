@@ -4,11 +4,16 @@
 
     )
     var p *models.Product
+    var productImagesHtml string
+    var productColorsHtml string
 }
-<div>
+<div style="border: 5px solid green">
     <h1>@p.Name</h1>
     <button onclick="addToCart(111222)" class="addToCart">Add To Cart</button>
-
+    @raw(productImagesHtml)
+    <div class="productColors">
+    @raw(productColorsHtml)
+    </div>
 </div>
 <script type="text/javascript">
 
