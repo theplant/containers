@@ -1,8 +1,12 @@
 package parts
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/theplant/containers/example/parts/templates"
+)
 
 func Footer(r *http.Request) (html string, err error) {
-	html = FooterTemplate()
+	html = templates.Footer()
 	return
 }
