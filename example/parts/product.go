@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/theplant/containers/example/models"
+	"github.com/theplant/containers/example/parts/templates"
 )
 
 func Product(r *http.Request) (html string, err error) {
@@ -16,6 +17,6 @@ func Product(r *http.Request) (html string, err error) {
 		return
 	}
 
-	html = ProductTemplate(p)
+	html = templates.Product(p)
 	return
 }

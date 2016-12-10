@@ -1,10 +1,10 @@
-package parts
+package templates
 
 import (
 	"bytes"
 )
 
-func LayoutTemplate(body string) string {
+func Layout(body string) string {
 	var _buffer bytes.Buffer
 	_buffer.WriteString("\n<html>\n    <head>Containers Example</head>\n  <body>\n      ")
 	_buffer.WriteString((body))

@@ -1,8 +1,12 @@
 package parts
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/theplant/containers/example/parts/templates"
+)
 
 func MainLayout(r *http.Request, body string) (html string, err error) {
-	html = LayoutTemplate(body)
+	html = templates.Layout(body)
 	return
 }

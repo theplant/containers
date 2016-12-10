@@ -1,4 +1,4 @@
-package parts
+package templates
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"github.com/theplant/containers/example/models"
 )
 
-func ProductTemplate(p *models.Product) string {
+func Product(p *models.Product) string {
 	var _buffer bytes.Buffer
 	_buffer.WriteString("\n<div>\n    <h1>")
 	_buffer.WriteString(gorazor.HTMLEscape(p.Name))
