@@ -19,6 +19,8 @@ Package containers provide better structures for building web applications
 ``` go
 func PageHandler(page Page, layout Layout) http.Handler
 ```
+PageHandler combine a `Page` and `Layout` to a normal http handler, then you can mount it a a url that fits.
+
 
 
 
