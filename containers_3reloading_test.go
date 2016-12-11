@@ -18,12 +18,12 @@ func ReloadableHome(r *http.Request) (cs []ct.Container, err error) {
 		&Header{},
 		&MainContent{
 			ProductCode:      productCode,
-			ProductBasicInfo: rl.WithReloadEvent("product_updated", &ProductBasicInfo{productCode}),
+			ProductBasicInfo: rl.WithTags("product_updated", &ProductBasicInfo{productCode}),
 			ProductImages: &ProductImages{
 				ProductCode:      productCode,
 				ProductMainImage: cb.ToContainer(ProductMainImage),
 			},
-			ProductDescription: rl.WithReloadEvent("product_updated, description_updated", &ProductDescription{productCode}),
+			ProductDescription: rl.WithTags("product_updated, description_updated", &ProductDescription{productCode}),
 		},
 		&Footer{},
 	}
@@ -31,19 +31,19 @@ func ReloadableHome(r *http.Request) (cs []ct.Container, err error) {
 }
 
 /*
-### Reloading certain containers of a page partially
+### Fetch certain containers of a page partially
 
-If you wrap your container inside your page with `reloading.WithReloadEvents`, then those containers are reloadable.
+If you wrap your container inside your page with `reloading.WithTags`, then those containers are separate fetchable.
 means you can use ajax to only load those containers without rendering other containers by:
 
 - pass the http header `Accept` with value `application/x-container-list`
-- pass a query parameter called `reloadingContainerEvents` to a event name you setup like: `product_updated`
+- pass a query parameter called `containersByTags` to a tag names you setup like: `product_updated, description_updated`
 
 In this page example:
 
 ```javascript
 
-    const url = "/page3?reloadingContainerEvents=product_updated"
+    const url = "/page3?containersByTags=product_updated"
     const reqData = {
         headers: {
             'Accept': "application/x-container-list"
