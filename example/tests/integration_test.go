@@ -57,7 +57,7 @@ func TestHome(t *testing.T) {
 		log.Fatal(err)
 	}
 	body := bodyString(res)
-	if strings.Index(body, "data-container-reloadon") < 0 {
+	if strings.Index(body, "data-container-id") < 0 {
 		t.Error(body)
 	}
 }
@@ -74,7 +74,7 @@ func TestReloadNestedContainers(t *testing.T) {
 	if strings.Index(body, "2.1.1") < 0 {
 		t.Error(body)
 	}
-	req, err := http.NewRequest("GET", ts.URL+"?c=2.1.1,2.2", nil)
+	req, err := http.NewRequest("GET", ts.URL+"?containersByTags=cart_updated", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +87,7 @@ func TestReloadNestedContainers(t *testing.T) {
 	var values map[string]string
 	json.Unmarshal([]byte(body), &values)
 	if values["2.1.1"] == "" || values["2.2"] == "" {
-		t.Error(values)
+		t.Error(body)
 	}
 }
 

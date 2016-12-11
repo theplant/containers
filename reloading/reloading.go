@@ -18,25 +18,81 @@ type reloadableHandler struct {
 	withIdPage *wrapWithIdPage
 }
 
-type reloadableEvent interface {
-	EventName() string
+type taggedContainer interface {
+	TagNames() string
 }
 
-const reloadableContainersKey = "containers.reloading.reloadableContainers"
+const containersByTagKey = "containers.reloading.containersByTag"
+const ContainersByTagsRequestParamName = "containersByTags"
+
+type containerWithId struct {
+	containerId string
+	container   ct.Container
+}
+type tagNameContainersWithId struct {
+	tagName        string
+	containersById []containerWithId
+}
+type containersByTag struct {
+	lists []*tagNameContainersWithId
+}
+
+func (cbt *containersByTag) Put(tagNames string, cId string, c ct.Container) {
+	names := pureTagNames(tagNames)
+	for _, name := range names {
+		var added bool
+		for _, ic := range cbt.lists {
+			if ic.tagName == name {
+				ic.containersById = append(ic.containersById, containerWithId{cId, c})
+				added = true
+				break
+			}
+		}
+		if !added {
+			cbt.lists = append(cbt.lists, &tagNameContainersWithId{name, []containerWithId{
+				{cId, c},
+			}})
+		}
+	}
+}
+
+func (cbt *containersByTag) Get(tagNames string) (cs []containerWithId) {
+	names := pureTagNames(tagNames)
+	for _, name := range names {
+		for _, ic := range cbt.lists {
+			if ic.tagName == name {
+				cs = append(cs, ic.containersById...)
+			}
+		}
+	}
+	return
+}
+
+func pureTagNames(names string) (r []string) {
+	ns := strings.Split(names, ",")
+	for _, name := range ns {
+		name = strings.TrimSpace(name)
+		if len(name) == 0 {
+			continue
+		}
+		r = append(r, name)
+	}
+	return
+}
 
 func (rh *reloadableHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	h := req.Header.Get("Accept")
 
 	if h == "application/x-container-list" {
-		reloadableContainers := map[string]ct.Container{}
-		req = req.WithContext(context.WithValue(req.Context(), reloadableContainersKey, reloadableContainers))
+		cbt := &containersByTag{}
+		req = req.WithContext(context.WithValue(req.Context(), containersByTagKey, cbt))
 		_, err := rh.withIdPage.Containers(req) // will update reloadableContainers
 		if err != nil {
 			handleErrorJson(res, req, err)
 			return
 		}
 
-		writeContainerList(res, req, reloadableContainers)
+		writeContainerList(res, req, cbt)
 		return
 	}
 
@@ -54,20 +110,20 @@ func (withId *wrapWithIdPage) Containers(r *http.Request) (cs []ct.Container, er
 		return
 	}
 
-	var reloadableContainers map[string]ct.Container
-	if val := r.Context().Value(reloadableContainersKey); val != nil {
-		reloadableContainers = val.(map[string]ct.Container)
+	var cbt *containersByTag
+	if val := r.Context().Value(containersByTagKey); val != nil {
+		cbt = val.(*containersByTag)
 	}
 
 	for i, oc := range ics {
-		cw := withId.wrapWithId(oc, fmt.Sprintf("%d", i+1), reloadableContainers)
+		cw := withId.wrapWithId(oc, fmt.Sprintf("%d", i+1), cbt)
 		cs = append(cs, cw)
 	}
 
 	return
 }
 
-func (withId *wrapWithIdPage) wrapWithId(pc ct.Container, containerId string, reloadableContainers map[string]ct.Container) (rc ct.Container) {
+func (withId *wrapWithIdPage) wrapWithId(pc ct.Container, containerId string, cbt *containersByTag) (rc ct.Container) {
 
 	cval := reflect.ValueOf(pc)
 	for cval.Kind() == reflect.Ptr {
@@ -82,15 +138,15 @@ func (withId *wrapWithIdPage) wrapWithId(pc ct.Container, containerId string, re
 		switch fieldc := field.(type) {
 		case ct.Container:
 			childId := fmt.Sprintf("%s.%d", containerId, i+1)
-			rfc := withId.wrapWithId(fieldc, childId, reloadableContainers)
+			rfc := withId.wrapWithId(fieldc, childId, cbt)
 			cval.Field(i).Set(reflect.ValueOf(rfc))
 		}
 	}
-	switch pc.(type) {
-	case reloadableEvent:
+	switch tagc := pc.(type) {
+	case taggedContainer:
 		rc = cb.Wrap("div", cb.Attrs{"data-container-id": containerId}, pc)
-		if reloadableContainers != nil {
-			reloadableContainers[containerId] = pc
+		if cbt != nil {
+			cbt.Put(tagc.TagNames(), containerId, pc)
 		}
 	default:
 		rc = pc
@@ -103,22 +159,16 @@ func ReloadablePageHandler(page ct.Page, layout ct.Layout) http.Handler {
 	return &reloadableHandler{handler: ct.PageHandler(withIdPage, layout), withIdPage: withIdPage}
 }
 
-func writeContainerList(res http.ResponseWriter, req *http.Request, cs map[string]ct.Container) {
+func writeContainerList(res http.ResponseWriter, req *http.Request, cbt *containersByTag) {
 	out := map[string]string{}
-	clist := strings.Split(req.URL.Query().Get("c"), ",")
-	for _, is := range clist {
-		c := cs[is]
-		if c == nil {
-			continue
-		}
-
-		r, err := cs[is].Render(req)
+	cs := cbt.Get(req.URL.Query().Get(ContainersByTagsRequestParamName))
+	for _, is := range cs {
+		r, err := is.container.Render(req)
 		if err != nil {
 			handleErrorJson(res, req, err)
 			return
 		}
-
-		out[is] = r
+		out[is.containerId] = r
 	}
 
 	json, err := json.Marshal(out)

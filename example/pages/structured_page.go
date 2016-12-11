@@ -14,7 +14,7 @@ type StructuredPage struct {
 
 func (sp *StructuredPage) Containers(r *http.Request) (cs []ct.Container, err error) {
 	cs = []ct.Container{
-		rl.WithReloadEvent("cart_updated", &parts.Header{}),
+		rl.WithTags("cart_updated", &parts.Header{}),
 		cb.Wrap("div", cb.Attrs{"class": "wrapper collection clearfix", "data-bind": "style: bodyWrapperTransform"},
 			cb.Wrap("aside", cb.Attrs{"class": "sidebar"},
 				cb.ToContainer(ProductAside),

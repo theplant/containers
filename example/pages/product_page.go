@@ -14,11 +14,11 @@ type ProductPage struct {
 
 func (pp *ProductPage) Containers(r *http.Request) (cs []ct.Container, err error) {
 	cs = []ct.Container{
-		rl.WithReloadEvent("cart_updated", &parts.Header{}),
+		rl.WithTags("cart_updated", &parts.Header{}),
 		&parts.Product{
-			ProductColors: rl.WithReloadEvent("cart_updated", &parts.ProductColors{}),
+			ProductColors: rl.WithTags("cart_updated", &parts.ProductColors{}),
 			ProductImages: &parts.ProductImages{
-				MainImage: rl.WithReloadEvent("cart_updated", &parts.ProductMainImage{}),
+				MainImage: rl.WithTags("cart_updated", &parts.ProductMainImage{}),
 			},
 		},
 		cb.ToContainer(parts.Footer),

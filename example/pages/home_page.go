@@ -48,19 +48,19 @@ func (hp *HomePage) Containers(req *http.Request) (cs []ct.Container, err error)
 
 		text("<h1>reload on `a`</h1>"),
 		text("triggers `b`"),
-		rl.WithReloadEvent("a", makeContainer(rand.Int(), "b")),
+		rl.WithTags("a", makeContainer(rand.Int(), "b")),
 		text("triggers `a`"),
-		rl.WithReloadEvent("a", makeContainer(rand.Int(), "a")),
-		rl.WithReloadEvent("a", text(fmt.Sprintf("static: %d", rand.Int()))),
+		rl.WithTags("a", makeContainer(rand.Int(), "a")),
+		rl.WithTags("a", text(fmt.Sprintf("static: %d", rand.Int()))),
 
 		text("<h1>reload on `b`</h1>"),
 		text("triggers `b`"),
-		rl.WithReloadEvent("b", makeContainer(rand.Int(), "b")),
+		rl.WithTags("b", makeContainer(rand.Int(), "b")),
 		text("triggers `a`"),
-		rl.WithReloadEvent("b", makeContainer(rand.Int(), "a")),
-		rl.WithReloadEvent("b", text(fmt.Sprintf("static: %d", rand.Int()))),
+		rl.WithTags("b", makeContainer(rand.Int(), "a")),
+		rl.WithTags("b", text(fmt.Sprintf("static: %d", rand.Int()))),
 
-		rl.WithReloadEvent("b", rl.OnlyOnReload(text("reloaded!"))),
+		rl.WithTags("b", rl.OnlyOnReload(text("reloaded!"))),
 		cb.ScriptByString(rl.ReloadScript),
 		cb.ScriptByString(applicationScript),
 	}, nil
