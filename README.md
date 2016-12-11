@@ -37,6 +37,8 @@ By following container interface to implements parts of your html page. You can 
 
 
 
+### Simple container setup
+
 Mount a `Page` as a `http.Handler` to a http server.
 ```go
 	package containers_test
@@ -83,6 +85,8 @@ Mount a `Page` as a `http.Handler` to a http server.
 	}
 	
 	/*
+	### Simple container setup
+	
 	Mount a `Page` as a `http.Handler` to a http server.
 	*/
 	func ExampleContainer_1simple() {
@@ -92,6 +96,8 @@ Mount a `Page` as a `http.Handler` to a http server.
 	
 	}
 ```
+
+### Setup a nested container tree
 
 Build a tree of containers, by using container struct field and render the children container inside parent container manually.
 ```go
@@ -128,6 +134,8 @@ Build a tree of containers, by using container struct field and render the child
 	}
 	
 	/*
+	### Setup a nested container tree
+	
 	Build a tree of containers, by using container struct field and render the children container inside parent container manually.
 	*/
 	func ExampleContainer_2nested() {
@@ -241,6 +249,8 @@ Build a tree of containers, by using container struct field and render the child
 	}
 ```
 
+### Reloading certain containers of a page partially
+
 If you wrap your container inside your page with `reloading.WithReloadEvents`, then those containers are reloadable.
 means you can use ajax to only load those containers without rendering other containers by:
 
@@ -295,6 +305,8 @@ The result json is a mapping of DOM element container ids inside html page, and 
 	}
 	
 	/*
+	### Reloading certain containers of a page partially
+	
 	If you wrap your container inside your page with `reloading.WithReloadEvents`, then those containers are reloadable.
 	means you can use ajax to only load those containers without rendering other containers by:
 	

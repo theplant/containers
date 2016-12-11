@@ -31,6 +31,8 @@ func ReloadableHome(r *http.Request) (cs []ct.Container, err error) {
 }
 
 /*
+### Reloading certain containers of a page partially
+
 If you wrap your container inside your page with `reloading.WithReloadEvents`, then those containers are reloadable.
 means you can use ajax to only load those containers without rendering other containers by:
 

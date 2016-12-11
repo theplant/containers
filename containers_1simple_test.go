@@ -42,6 +42,8 @@ func (h *Home) Containers(r *http.Request) (cs []ct.Container, err error) {
 }
 
 /*
+### Simple container setup
+
 Mount a `Page` as a `http.Handler` to a http server.
 */
 func ExampleContainer_1simple() {
