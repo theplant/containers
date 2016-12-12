@@ -31,9 +31,10 @@ func ComplicatedHome(r *http.Request) (cs []ct.Container, err error) {
 }
 
 /*
-### Setup a nested container tree
+### Setup a nested containers tree
 
 Build a tree of containers, by using container struct field and render the children container inside parent container manually.
+Note that the struct field name has to be exported, means uppercase. Or it can't benefit `reloading` package.
 */
 func ExampleContainer_2nested() {
 

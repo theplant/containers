@@ -33,11 +33,13 @@ func ReloadableHome(r *http.Request) (cs []ct.Container, err error) {
 /*
 ### Fetch certain containers of a page partially
 
-If you wrap your container inside your page with `reloading.WithTags`, then those containers are separate fetchable.
-means you can use ajax to only load those containers without rendering other containers by:
+If you want to fetch containers separately. Means you can use ajax to only load those containers without rendering other containers by:
 
-- pass the http header `Accept` with value `application/x-container-list`
-- pass a query parameter called `containersByTags` to a tag names you setup like: `product_updated, description_updated`
+- Wrap with `reloading.WithTags` to tag the containers you want to load partially.
+- The containers tree struct field for child container must be exported, for example: `&MainContent{ProductBasicInfo: ct}`, can NOT be `&MainContent{productBasicInfo: ct}`
+- Use page handler `reloading.ReloadablePageHandler` to mount your `Page` to routes.
+- Pass the http header `Accept` with value `application/x-container-list`
+- Pass a query parameter called `containersByTags` to a tag names you setup like: `product_updated, description_updated`
 
 In this page example:
 
@@ -52,11 +54,20 @@ In this page example:
     fetch(url, reqData).then(r => r.json())
 ```
 
-The result json is a mapping of DOM element container ids inside html page, and rendered html for you to replace into those DOM element.
+The result json is a mapping of DOM element container ids inside html page, and rendered html for you to replace into those DOM element. it will look like this:
+```javascript
+	{
+		"2.1": "(ProductBasicInfo container rendered html escaped in json)",
+		"2.3": "(ProductDescription container rendered html escaped in json)"
+	}
+```
+
+"2.1", "2.3" is the attribute value of `<div data-container-id='2.1'></div>` tag inside your html page. So that you can simply replace the server render html to update those tags in javascript.
+
 */
 func ExampleContainer_3reloading() {
 
-	http.Handle("/page3", ct.PageHandler(cb.ToPage(ReloadableHome), nil))
+	http.Handle("/page3", rl.ReloadablePageHandler(cb.ToPage(ReloadableHome), nil))
 	//Output:
 
 }
