@@ -1,6 +1,6 @@
 package reloading
 
-var reloadscript = `
+var ReloadScript = `
 //////////////////////////////////////////
 // Framework code
 
@@ -15,50 +15,32 @@ function postEvent(name) {
 // Event -> Reload containers mapped to event
 document.addEventListener("appEvent", e => {
     console.log("handling", e.events);
-    const containers = containersForEvent(e.events);
-    reloadContainers(containers);
+
+    const containers = [];
+    document.querySelectorAll("[data-container-id]").forEach(n => {
+        containers.push(n)
+    });
+    reloadContainers(e.events, containers);
 });
 
-function containersForEvent(events) {
-    const containers = [];
-    document.querySelectorAll("[data-container-reloadon]").forEach(n => {
-        // FIXME only processing the first event
-        console.log(n, n.dataset.containerReloadon, events[0], n.dataset.containerReloadon === events[0]);
-        if (n.dataset.containerReloadon === events[0]) {
-            containers.push(n.closest("[data-container-id]"));
-        }
-    });
-    return containers;
+
+function reloadContainers(tagNames, containers) {
+    fetchContainers(tagNames)
+        .then(j => {
+            console.log(j);
+            containers.forEach(c => {
+                id = c.dataset.containerId;
+                console.log("updating "+c+" with:"+j[id]);
+                if(j[id] == null) {
+                    return
+                }
+                c.innerHTML = j[id]
+            });
+        }).catch(e => console.error(e))
 }
 
-function reloadContainers(containers) {
-    const ids = [];
-
-    containers.forEach(c => {
-        const id = c.dataset.containerId
-        if (id != null) {
-            ids.push(id);
-        }
-    })
-
-        console.log(containers);
-    console.log(ids.join(","));
-
-    if (ids.length > 0) {
-        fetchContainers(ids)
-            .then(j => {
-                console.log(j);
-                containers.forEach(c => {
-                    id = c.dataset.containerId;
-                    console.log("updating "+c+" with:"+j[id]);
-                    c.innerHTML = j[id]
-                });
-            }).catch(e => console.error(e))
-    }
-}
-
-function fetchContainers(ids) {
-    const url = "?c="+ids.join(",");
+function fetchContainers(tagNames) {
+    const url = "?containersByTags="+tagNames.join(",");
 
     const reqData = {
         headers: {
