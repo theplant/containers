@@ -7,6 +7,9 @@ import (
 	"net/http"
 )
 
+/*
+PageHandler combine a `Page` and `Layout` to a normal http handler, then you can mount it a a url that fits.
+*/
 func PageHandler(page Page, layout Layout) http.Handler {
 	return &mainHandler{page, layout}
 }
