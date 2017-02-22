@@ -5,14 +5,23 @@ Package containers provide better structures for building web applications
 
 
 
+* [New Redirect Error](#new-redirect-error)
 * [Page Handler](#page-handler)
+* [Use Err Handler](#use-err-handler)
 * [Type Container](#type-container)
 * [Type Container Func](#type-container-func)
+* [Type Err Handler](#type-err-handler)
 * [Type Layout](#type-layout)
 * [Type Page](#type-page)
 * [Type Page Func](#type-page-func)
 
 
+
+
+## New Redirect Error
+``` go
+func NewRedirectError(url string, code int) (err error)
+```
 
 
 ## Page Handler
@@ -21,6 +30,12 @@ func PageHandler(page Page, layout Layout) http.Handler
 ```
 PageHandler combine a `Page` and `Layout` to a normal http handler, then you can mount it a a url that fits.
 
+
+
+## Use Err Handler
+``` go
+func UseErrHandler(h http.Handler, errhandler ErrHandler) (handler http.Handler)
+```
 
 
 
@@ -359,6 +374,11 @@ The result json is a mapping of DOM element container ids inside html page, and 
 	}
 ```
 
+```go
+	http.Handle("/page4", ct.UseErrHandler(ct.PageHandler(cb.ToPage(MyCatHome), nil), &errhandler{}))
+	//Output:
+```
+
 
 
 
@@ -372,6 +392,21 @@ type ContainerFunc func(r *http.Request) (html string, err error)
 ContainerFunc is a short cut to build simple container that don't depend outside inputs.
 Use `combinators.ToContainer` to convert a `ContainerFunc` to a `Container`.
 
+
+
+
+
+
+
+
+
+
+## Type: Err Handler
+``` go
+type ErrHandler interface {
+    HandleErr(w http.ResponseWriter, r *http.Request, err error)
+}
+```
 
 
 

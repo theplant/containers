@@ -16,6 +16,17 @@ func PageHandler(page Page, layout Layout) http.Handler {
 
 func handleError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Println(err)
+	if errh, ok := err.(ErrHandler); ok {
+		errh.HandleErr(w, r, err)
+		return
+	}
+
+	eh, ok := r.Context().Value(internalServerErrorHandlerKey).(ErrHandler)
+	if ok {
+		eh.HandleErr(w, r, err)
+		return
+	}
+
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintln(w, err)
 	return
