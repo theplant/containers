@@ -22,10 +22,6 @@ func (eh *errhandler) HandleErr(w http.ResponseWriter, r *http.Request, err erro
 }
 
 func Cat(r *http.Request) (html string, err error) {
-	if r.URL.Path == "/fff" {
-		html = "DONE"
-		return
-	}
 	err = ct.NewRedirectError("/fff", http.StatusPermanentRedirect)
 	return
 }
@@ -53,13 +49,19 @@ func TestErrorRedirect(t *testing.T) {
 	ts := httptest.NewServer(ct.UseErrHandler(ct.PageHandler(cb.ToPage(MyCatHome), nil), &errhandler{}))
 	defer ts.Close()
 
-	res, err := http.Get(ts.URL)
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	res, err := client.Get(ts.URL)
 	if err != nil {
 		t.Error(err)
 	}
-	diff := testingutils.PrettyJsonDiff("DONE\n", res.Body)
-	if len(diff) > 0 {
-		t.Error(diff)
+
+	if res.StatusCode != http.StatusPermanentRedirect {
+		t.Error("wrong http status", res.Status)
 	}
 }
 
