@@ -37,3 +37,19 @@ type PageFunc func(r *http.Request) (cs []Container, err error)
 Layout is like a `Container`, but takes another parameter body. use `containers.PageHandler` to combine a `Page` and a `Layout`, and mount to a url.
 */
 type Layout func(r *http.Request, body string) (html string, err error)
+
+// ErrHandler is used for process err
+type ErrHandler interface {
+	Process(w http.ResponseWriter, r *http.Request, err error) (progress bool)
+}
+
+// ErrHandlerFunc type is an adapter to allow the use of
+// ordinary functions as ErrHandler. If f is a function
+// with the appropriate signature, ErrHandlerFunc(f) is a
+// ErrHandler that calls f.
+type ErrHandlerFunc func(http.ResponseWriter, *http.Request, error) bool
+
+// Process calls  f(w, r, err)
+func (f ErrHandlerFunc) Process(w http.ResponseWriter, r *http.Request, err error) (progress bool) {
+	return f(w, r, err)
+}
