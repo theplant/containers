@@ -39,6 +39,10 @@ type mainHandler struct {
 
 func (mh *mainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cs, err := mh.page.Containers(req)
+	if err != nil {
+		handleError(res, req, err)
+		return
+	}
 	buf := bytes.NewBuffer(nil)
 	for _, c := range cs {
 		r, err := c.Render(req)
