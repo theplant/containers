@@ -14,7 +14,7 @@ type HomePage struct {
 }
 
 func toC(f func(r *http.Request) (html string, err error)) ct.Container {
-	return cb.ToContainer(f)
+	return ct.ContainerFunc(f)
 }
 
 func makeContainer(label int, event string) ct.Container {

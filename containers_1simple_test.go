@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	ct "github.com/theplant/containers"
-	cb "github.com/theplant/containers/combinators"
 )
 
 // Container Header
@@ -35,7 +34,7 @@ type Home struct {
 func (h *Home) Containers(r *http.Request) (cs []ct.Container, err error) {
 	cs = []ct.Container{
 		&Header{},
-		cb.ToContainer(SimpleContent), // Use combinators.ToContainer to convert a ContainerFunc to a Container
+		ct.ContainerFunc(SimpleContent), // Use ct.ContainerFunc to convert a ContainerFunc to a Container
 		&Footer{},
 	}
 	return

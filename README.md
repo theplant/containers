@@ -10,10 +10,12 @@ Package containers provide better structures for building web applications
 * [Use Err Handler](#use-err-handler)
 * [Type Container](#type-container)
 * [Type Container Func](#type-container-func)
+  * [Render](#container-func-render)
 * [Type Err Handler](#type-err-handler)
 * [Type Layout](#type-layout)
 * [Type Page](#type-page)
 * [Type Page Func](#type-page-func)
+  * [Containers](#page-func-containers)
 
 
 
@@ -62,7 +64,6 @@ Mount a `Page` as a `http.Handler` to a http server.
 	    "net/http"
 	
 	    ct "github.com/theplant/containers"
-	    cb "github.com/theplant/containers/combinators"
 	)
 	
 	// Container Header
@@ -93,7 +94,7 @@ Mount a `Page` as a `http.Handler` to a http server.
 	func (h *Home) Containers(r *http.Request) (cs []ct.Container, err error) {
 	    cs = []ct.Container{
 	        &Header{},
-	        cb.ToContainer(SimpleContent), // Use combinators.ToContainer to convert a ContainerFunc to a Container
+	        ct.ContainerFunc(SimpleContent), // Use ct.ContainerFunc to convert a ContainerFunc to a Container
 	        &Footer{},
 	    }
 	    return
@@ -125,7 +126,6 @@ Note that the struct field name has to be exported, means uppercase. Or it can't
 	    "strings"
 	
 	    ct "github.com/theplant/containers"
-	    cb "github.com/theplant/containers/combinators"
 	)
 	
 	func ComplicatedHome(r *http.Request) (cs []ct.Container, err error) {
@@ -140,7 +140,7 @@ Note that the struct field name has to be exported, means uppercase. Or it can't
 	            ProductBasicInfo: &ProductBasicInfo{productCode},
 	            ProductImages: &ProductImages{
 	                ProductCode:      productCode,
-	                ProductMainImage: cb.ToContainer(ProductMainImage),
+	                ProductMainImage: ct.ContainerFunc(ProductMainImage),
 	            },
 	            ProductDescription: &ProductDescription{productCode},
 	        },
@@ -157,7 +157,7 @@ Note that the struct field name has to be exported, means uppercase. Or it can't
 	*/
 	func ExampleContainer_2nested() {
 	
-	    http.Handle("/page2", ct.PageHandler(cb.ToPage(ComplicatedHome), nil))
+	    http.Handle("/page2", ct.PageHandler(ct.PageFunc(ComplicatedHome), nil))
 	    //Output:
 	
 	}
@@ -306,7 +306,6 @@ The result json is a mapping of DOM element container ids inside html page, and 
 	    "strings"
 	
 	    ct "github.com/theplant/containers"
-	    cb "github.com/theplant/containers/combinators"
 	    rl "github.com/theplant/containers/reloading"
 	)
 	
@@ -322,7 +321,7 @@ The result json is a mapping of DOM element container ids inside html page, and 
 	            ProductBasicInfo: rl.WithTags("product_updated", &ProductBasicInfo{productCode}),
 	            ProductImages: &ProductImages{
 	                ProductCode:      productCode,
-	                ProductMainImage: cb.ToContainer(ProductMainImage),
+	                ProductMainImage: ct.ContainerFunc(ProductMainImage),
 	            },
 	            ProductDescription: rl.WithTags("product_updated, description_updated", &ProductDescription{productCode}),
 	        },
@@ -368,14 +367,14 @@ The result json is a mapping of DOM element container ids inside html page, and 
 	*/
 	func ExampleContainer_3reloading() {
 	
-	    http.Handle("/page3", rl.ReloadablePageHandler(cb.ToPage(ReloadableHome), nil))
+	    http.Handle("/page3", rl.ReloadablePageHandler(ct.PageFunc(ReloadableHome), nil))
 	    //Output:
 	
 	}
 ```
 
 ```go
-	http.Handle("/page4", ct.UseErrHandler(ct.PageHandler(cb.ToPage(MyCatHome), nil), &errhandler{}))
+	http.Handle("/page4", ct.UseErrHandler(ct.PageHandler(ct.PageFunc(MyCatHome), nil), &errhandler{}))
 	//Output:
 ```
 
@@ -390,7 +389,7 @@ The result json is a mapping of DOM element container ids inside html page, and 
 type ContainerFunc func(r *http.Request) (html string, err error)
 ```
 ContainerFunc is a short cut to build simple container that don't depend outside inputs.
-Use `combinators.ToContainer` to convert a `ContainerFunc` to a `Container`.
+Use `containers.ContainerFunc` to convert a `ContainerFunc` to a `Container`.
 
 
 
@@ -398,6 +397,13 @@ Use `combinators.ToContainer` to convert a `ContainerFunc` to a `Container`.
 
 
 
+
+
+
+### Container Func: Render
+``` go
+func (f ContainerFunc) Render(r *http.Request) (html string, err error)
+```
 
 
 
@@ -453,7 +459,7 @@ Page is anything that can return a list of `Containers`, use `containers.PageHan
 type PageFunc func(r *http.Request) (cs []Container, err error)
 ```
 PageFunc is a short cut to build simple page that don't depend outside inputs.
-Use `combinators.ToPage` to convert a `PageFunc` to a `Page`
+Use `containers.PageFunc` to convert a `PageFunc` to a `Page`
 
 
 
@@ -461,6 +467,13 @@ Use `combinators.ToPage` to convert a `PageFunc` to a `Page`
 
 
 
+
+
+
+### Page Func: Containers
+``` go
+func (f PageFunc) Containers(r *http.Request) (cs []Container, err error)
+```
 
 
 

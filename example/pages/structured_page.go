@@ -17,11 +17,11 @@ func (sp *StructuredPage) Containers(r *http.Request) (cs []ct.Container, err er
 		rl.WithTags("cart_updated", &parts.Header{}),
 		cb.Wrap("div", cb.Attrs{"class": "wrapper collection clearfix", "data-bind": "style: bodyWrapperTransform"},
 			cb.Wrap("aside", cb.Attrs{"class": "sidebar"},
-				cb.ToContainer(ProductAside),
+				ct.ContainerFunc(ProductAside),
 			),
 			&parts.Product{},
 		),
-		cb.ToContainer(parts.Footer),
+		ct.ContainerFunc(parts.Footer),
 	}
 	return
 }

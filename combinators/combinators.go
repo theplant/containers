@@ -36,7 +36,7 @@ func ToPage(f ct.PageFunc) ct.Page {
 type Attrs map[string]string
 
 func Wrap(el string, attrs Attrs, cs ...ct.Container) ct.Container {
-	return ToContainer(func(r *http.Request) (html string, err error) {
+	return ct.ContainerFunc(func(r *http.Request) (html string, err error) {
 		var out = bytes.NewBuffer(nil)
 		for _, c := range cs {
 			var part string
@@ -62,7 +62,7 @@ func Wrap(el string, attrs Attrs, cs ...ct.Container) ct.Container {
 }
 
 func FileContainer(filename string) ct.Container {
-	return ToContainer(func(r *http.Request) (string, error) {
+	return ct.ContainerFunc(func(r *http.Request) (string, error) {
 		b, err := ioutil.ReadFile(filename)
 		return string(b), err
 	})
@@ -73,7 +73,7 @@ func ScriptByFile(filename string) ct.Container {
 }
 
 func StringContainer(value string) ct.Container {
-	return ToContainer(func(r *http.Request) (string, error) {
+	return ct.ContainerFunc(func(r *http.Request) (string, error) {
 		return value, nil
 	})
 }

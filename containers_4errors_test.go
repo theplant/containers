@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	ct "github.com/theplant/containers"
-	cb "github.com/theplant/containers/combinators"
 	"github.com/theplant/testingutils"
 )
 
@@ -33,20 +32,20 @@ func BadBoy(r *http.Request) (html string, err error) {
 
 func MyCatHome(r *http.Request) (cs []ct.Container, err error) {
 	cs = []ct.Container{
-		cb.ToContainer(Cat),
+		ct.ContainerFunc(Cat),
 	}
 	return
 }
 
 func ExampleContainer_4errors() {
 
-	http.Handle("/page4", ct.UseErrHandler(ct.PageHandler(cb.ToPage(MyCatHome), nil), &errhandler{}))
+	http.Handle("/page4", ct.UseErrHandler(ct.PageHandler(ct.PageFunc(MyCatHome), nil), &errhandler{}))
 	//Output:
 
 }
 
 func TestErrorRedirect(t *testing.T) {
-	ts := httptest.NewServer(ct.UseErrHandler(ct.PageHandler(cb.ToPage(MyCatHome), nil), &errhandler{}))
+	ts := httptest.NewServer(ct.UseErrHandler(ct.PageHandler(ct.PageFunc(MyCatHome), nil), &errhandler{}))
 	defer ts.Close()
 
 	client := &http.Client{
@@ -66,9 +65,9 @@ func TestErrorRedirect(t *testing.T) {
 }
 
 func TestErrorInternal(t *testing.T) {
-	ts := httptest.NewServer(ct.UseErrHandler(ct.PageHandler(cb.ToPage(func(r *http.Request) (cs []ct.Container, err error) {
+	ts := httptest.NewServer(ct.UseErrHandler(ct.PageHandler(ct.PageFunc(func(r *http.Request) (cs []ct.Container, err error) {
 		cs = []ct.Container{
-			cb.ToContainer(BadBoy),
+			ct.ContainerFunc(BadBoy),
 		}
 		return
 	}), nil), &errhandler{}))

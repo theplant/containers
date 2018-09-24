@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	ct "github.com/theplant/containers"
-	cb "github.com/theplant/containers/combinators"
 )
 
 type tagc struct {
@@ -25,7 +24,7 @@ func WithTags(tagNames string, container ct.Container) ct.Container {
 }
 
 func OnlyOnReload(container ct.Container) ct.Container {
-	return cb.ToContainer(func(r *http.Request) (html string, err error) {
+	return ct.ContainerFunc(func(r *http.Request) (html string, err error) {
 		h := r.Header.Get("Accept")
 		if h != "application/x-container-list" {
 			return

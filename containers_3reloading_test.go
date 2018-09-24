@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	ct "github.com/theplant/containers"
-	cb "github.com/theplant/containers/combinators"
 	rl "github.com/theplant/containers/reloading"
 )
 
@@ -21,7 +20,7 @@ func ReloadableHome(r *http.Request) (cs []ct.Container, err error) {
 			ProductBasicInfo: rl.WithTags("product_updated", &ProductBasicInfo{productCode}),
 			ProductImages: &ProductImages{
 				ProductCode:      productCode,
-				ProductMainImage: cb.ToContainer(ProductMainImage),
+				ProductMainImage: ct.ContainerFunc(ProductMainImage),
 			},
 			ProductDescription: rl.WithTags("product_updated, description_updated", &ProductDescription{productCode}),
 		},
@@ -67,7 +66,7 @@ The result json is a mapping of DOM element container ids inside html page, and 
 */
 func ExampleContainer_3reloading() {
 
-	http.Handle("/page3", rl.ReloadablePageHandler(cb.ToPage(ReloadableHome), nil))
+	http.Handle("/page3", rl.ReloadablePageHandler(ct.PageFunc(ReloadableHome), nil))
 	//Output:
 
 }

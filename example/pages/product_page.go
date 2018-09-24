@@ -21,7 +21,7 @@ func (pp *ProductPage) Containers(r *http.Request) (cs []ct.Container, err error
 				MainImage: rl.WithTags("cart_updated", &parts.ProductMainImage{}),
 			},
 		},
-		cb.ToContainer(parts.Footer),
+		ct.ContainerFunc(parts.Footer),
 		cb.Wrap("script", cb.Attrs{"src": "https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"}),
 		cb.ScriptByString(rl.ReloadScript),
 	}

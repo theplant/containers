@@ -130,18 +130,21 @@ func (withId *wrapWithIdPage) wrapWithId(pc ct.Container, containerId string, cb
 		cval = cval.Elem()
 	}
 
-	for i := 0; i < cval.NumField(); i++ {
-		if !cval.Field(i).CanInterface() {
-			continue
-		}
-		field := cval.Field(i).Interface()
-		switch fieldc := field.(type) {
-		case ct.Container:
-			childId := fmt.Sprintf("%s.%d", containerId, i+1)
-			rfc := withId.wrapWithId(fieldc, childId, cbt)
-			cval.Field(i).Set(reflect.ValueOf(rfc))
+	if cval.Kind() != reflect.Func {
+		for i := 0; i < cval.NumField(); i++ {
+			if !cval.Field(i).CanInterface() {
+				continue
+			}
+			field := cval.Field(i).Interface()
+			switch fieldc := field.(type) {
+			case ct.Container:
+				childId := fmt.Sprintf("%s.%d", containerId, i+1)
+				rfc := withId.wrapWithId(fieldc, childId, cbt)
+				cval.Field(i).Set(reflect.ValueOf(rfc))
+			}
 		}
 	}
+
 	switch tagc := pc.(type) {
 	case taggedContainer:
 		rc = cb.Wrap("div", cb.Attrs{"data-container-id": containerId}, pc)

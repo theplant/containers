@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	ct "github.com/theplant/containers"
-	cb "github.com/theplant/containers/combinators"
 )
 
 func ComplicatedHome(r *http.Request) (cs []ct.Container, err error) {
@@ -21,7 +20,7 @@ func ComplicatedHome(r *http.Request) (cs []ct.Container, err error) {
 			ProductBasicInfo: &ProductBasicInfo{productCode},
 			ProductImages: &ProductImages{
 				ProductCode:      productCode,
-				ProductMainImage: cb.ToContainer(ProductMainImage),
+				ProductMainImage: ct.ContainerFunc(ProductMainImage),
 			},
 			ProductDescription: &ProductDescription{productCode},
 		},
@@ -38,7 +37,7 @@ Note that the struct field name has to be exported, means uppercase. Or it can't
 */
 func ExampleContainer_2nested() {
 
-	http.Handle("/page2", ct.PageHandler(cb.ToPage(ComplicatedHome), nil))
+	http.Handle("/page2", ct.PageHandler(ct.PageFunc(ComplicatedHome), nil))
 	//Output:
 
 }
