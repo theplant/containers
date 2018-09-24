@@ -6,7 +6,7 @@ import (
 	ct "github.com/theplant/containers"
 )
 
-type Container struct {
+type Fetcher struct {
 	URL         string
 	Primary     bool
 	Async       bool
@@ -14,7 +14,7 @@ type Container struct {
 	BeforeFetch func(r *http.Request, child *http.Request) (err error)
 }
 
-func (c *Container) Render(r *http.Request) (html string, err error) {
+func (c *Fetcher) Render(r *http.Request) (html string, err error) {
 	return
 }
 
@@ -30,11 +30,17 @@ func (rs *Results) Get(name string) string {
 }
 
 type Group struct {
-	Containers  map[string]ct.Container
+	CMap        map[string]ct.Container
 	LayoutFunc  func(values *Results) string
 	BeforeFetch func(r *http.Request, child *http.Request) (err error)
 }
 
 func (c *Group) Render(r *http.Request) (html string, err error) {
 	return
+}
+
+func (c *Group) Containers(r *http.Request) (cs []ct.Container, err error) {
+	return []ct.Container{
+		c,
+	}, nil
 }
