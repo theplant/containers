@@ -1,0 +1,25 @@
+@{
+    import  (
+        "github.com/theplant/containers/fetch"
+    )
+    var values *fetch.Results
+}
+
+<html>
+    @raw(values.Get("head"))
+  <body>
+      <header>
+        @raw(values.Get("header"))
+      </header>
+      <menu>
+        @raw(values.Get("menu"))
+      </menu>
+      <content>
+        @raw(values.Get("content"))
+      </content>
+      <footer>
+        @raw(values.Get("footer"))
+      </footer>
+  </body>
+</html>
+
