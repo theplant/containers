@@ -3,8 +3,10 @@ package containers
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 /*
@@ -62,5 +64,6 @@ func (mh *mainHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	fmt.Fprintln(res, html)
+	res.Header().Set("Content-Length", strconv.Itoa(buf.Len()))
+	io.Copy(res, buf)
 }
